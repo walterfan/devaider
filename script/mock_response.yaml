@@ -1,0 +1,14 @@
+routes:
+  - path: "/api/get_example"
+    method: "GET"
+    status_code: 200
+    response:
+      message: "This is a mock GET response."
+
+  - path: "/api/post_example"
+    method: "POST"
+    status_code: 201
+    response:
+      message: "This is a mock POST response."
+      data_received: "{data}"
+
