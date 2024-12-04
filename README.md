@@ -1,2 +1,3 @@
-# devaider
-a new version of old devaid project
+# Developer Aider
+
+Developer help developers
