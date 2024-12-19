@@ -1,0 +1,30 @@
+sql:
+  - name: getCurrentDate
+    query: |
+      select current_date
+  - name: getCurrentVersion
+    query: |
+      select version()
+  - name: showDatabases
+    query: |
+      show databases
+  - name: showTables
+    query: |
+      show tables
+  - name: showGrant
+    query: |
+      show grants
+  - name: showTableDefinition
+    query: |
+      show create table [table_name];
+  - name: showColumnsDefinition
+    query: |
+      show full columns from [table_name];
+  - name: getTableStructure
+    query: |
+      describe [tablename]
+  - name: showVariables
+    query: |
+      show variables like 'char%';
+
+

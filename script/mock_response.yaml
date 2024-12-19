@@ -12,3 +12,11 @@ routes:
       message: "This is a mock POST response."
       data_received: "{data}"
 
+  - path: "/api/getResourcesVersionByCustomerId"
+    method: "GET"
+    status_code: 200
+    response:
+      customer_id: "0085c2b7-41b8-422b-87c9-467d4c97536b"
+      resource_version:
+        print: "1.0.0"
+        ukg: "1.0.2"

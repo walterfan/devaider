@@ -1,0 +1,49 @@
+sql:
+  - name: getCurrentDate
+    query: |
+      select sysdate from dual
+  - name: getAllTables
+    query: |
+      select * from tab
+  - name: getTableColumns
+    query: |
+      select column_name, data_type, data_length, NULLABLE, data_default
+      from user_tab_columns
+      where table_name='?'
+  - name: tableSpaceUtilization
+    query: |
+      select f.tablespace_name, a.total, u.used, f.free,
+             round((u.used/a.total)*100) "% used",
+             round((f.free/a.total)*100) "% Free"
+      from
+        (select tablespace_name, sum(bytes/(1024*1024)) total from dba_data_files group by tablespace_name) a,
+        (select tablespace_name, round(sum(bytes/(1024*1024))) used from dba_extents group by tablespace_name) u,
+        (select tablespace_name, round(sum(bytes/(1024*1024))) free from dba_free_space group by tablespace_name) f
+      WHERE a.tablespace_name = f.tablespace_name
+        and a.tablespace_name = u.tablespace_name
+  - name: findTopSql
+    query: |
+      SELECT *
+      FROM   (SELECT Substr(a.sql_text,1,50) sql_text,
+                     Trunc(a.disk_reads/Decode(a.executions,0,1,a.executions)) reads_per_execution, 
+                     a.buffer_gets, 
+                     a.disk_reads, 
+                     a.executions, 
+                     a.sorts,
+                     a.address
+              FROM   v$sqlarea a
+              ORDER BY 2 DESC)
+      WHERE  rownum <= 10
+  - name: findTopCpuSession
+    query: |
+      SELECT * FROM
+      select * from
+      (select sid, value from v$sesstat where statistic#=12 order by value desc) where rownum <= 10;
+  - name: findTopSortSession
+    query: |
+      select /*+ RULE */ v.sid,v.serial#,v.username,v.osuser,v.machine, v.status,v.last_call_et/3600,
+             tablespace,blocks*8192/1024/1024/1000 "size (GB)"
+      from v$session v,v$sort_usage s
+      where v.saddr=s.session_addr and (blocks*8192/1024/1024/1000) > 0.5
+      order by 9 desc
+

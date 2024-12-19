@@ -15,9 +15,10 @@ mock_data = load_mock_responses('mock_response.yaml')
 @app.route('/<path:path>', methods=['GET', 'POST'])
 def mock_endpoint(path):
     global mock_data
+    print(f"Request received: {request.method} {path}")
     # Find the matching route configuration
     for route in mock_data['routes']:
-        if route['path'].strip('/') == path and route['method'].upper() == request.method:
+        if route['path'].strip('/') in path and route['method'].upper() == request.method:
             # Generate the response
             response_body = route['response']
             if isinstance(response_body, dict):

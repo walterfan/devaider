@@ -1,0 +1,39 @@
+sql:
+  - name: getAllModuleList
+    query: |
+      select a.moduleID, a.moduleName, a.description, a.moduleLink,
+             a.parentModuleID from wfmodule a, wfprivilege b where
+             a.moduleid=b.moduleid and b.roleid = 1
+  - name: getModuleList
+    query: |
+      select a.moduleID, a.moduleName, a.description, a.moduleLink,
+             a.parentModuleID , ifnull(b.roleid,0) as modulestatus 
+      from wfmodule a  left join wfprivilege b on 
+      a.moduleid=b.moduleid and b.roleid=1
+  - name: getUsers
+    query: |
+      select * from wfuser
+  - name: getRoles
+    query: |
+      select * from wfrole
+  - name: getTaskList
+    query: |
+      select * from wftask
+  - name: getAllTables
+    query: |
+      SELECT * FROM sqlite_master
+      WHERE type='table'
+      ORDER BY name;
+  - name: alterTable
+    query: |
+      BEGIN TRANSACTION;
+      CREATE TEMPORARY TABLE t1_backup(a,b);
+      INSERT INTO t1_backup SELECT a,b FROM t1;
+      DROP TABLE t1;
+      CREATE TABLE t1(a,b);
+      INSERT INTO t1 SELECT a,b FROM t1_backup;
+      DROP TABLE t1_backup;
+      COMMIT;
+  - name: updateUserEmail
+    query: |
+      update wfuser set email='alice@example.com' where username='alice'
