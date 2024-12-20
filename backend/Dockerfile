@@ -9,4 +9,4 @@ RUN mkdir -p /usr/src/devaider
 COPY target/devaider-0.0.1-SNAPSHOT.jar /usr/src/devaider
 WORKDIR /usr/src/devaider
 EXPOSE 8080
-CMD ["java" ,"-jar", "target/devaider-0.0.1-SNAPSHOT.jar" ]
+CMD ["java" ,"-jar", "devaider-0.0.1-SNAPSHOT.jar" ]
