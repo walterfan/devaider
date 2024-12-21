@@ -17,7 +17,7 @@ services:
       - 3306
       - 33060
     ports:
-      - "3306:3306"
+      - "${DB_PORT}:3306"
       - "33060:33060"
 
   # adminer - bring up only as needed - bypasses nginx
@@ -29,7 +29,7 @@ services:
     depends_on:
       - db
     ports:
-      - "9000:8080"
+      - "${ADMINER_PORT}:8080"
 
   redis:
     container_name: devaider_redis
@@ -44,24 +44,31 @@ services:
     ports:
       - "${REDIS_PORT}:6379"
     volumes:
-      - redis_data:/data  # 挂载持久化数据目录
+      - redis_data:/data           # 挂载持久化数据目录
     restart: unless-stopped
 
-  plantuml-server:
+  plantuml:
     image: plantuml/plantuml-server:jetty
     ports:
-      - "9010:8080"
+      - "${PLANT_UML_PORT}:8080"
     restart: always
     container_name: devaider_plantuml
 
-  jupyter-lab:
+  jupyter:
+    container_name: devaider_jupyter
     image: jupyter/datascience-notebook
     ports:
-      - "9020:8888"
+      - "${JUPYTER_LAB_PORT}:8888"
     environment:
       - JUPYTER_ENABLE_LAB=yes
+      - LLM_API_KEY=${DS_LLM_API_KEY}
+      - LLM_BASE_URL=${DS_LLM_BASE_URL}
+      - LLM_MODEL=${DS_LLM_MODEL}
+    volumes:
+      - ../doc:/home/jovyan/work
+      - ./data:/data  
     restart: always
-    container_name: devaider_jupyter_lab
+
 
   nginx:
     # default ports 80, 443 - expose mapping as needed to host
@@ -70,12 +77,12 @@ services:
     restart: unless-stopped
 
     ports:
-      - "9080:80"    # http
-      - "9081:443"   # https
+      - "${NGINX_HTTP_PORT}:80"    # http
+      - "${NGINX_HTTPS_PORT}:443"   # https
     volumes:
       - ../frontend:/var/www/html/web
       - ${NGINX_CONF}:/etc/nginx/conf.d/default.conf
-      - ${NGINX_SSL_CERTS}:/etc/ssl:ro
+      - ${NGINX_SSL_CERTS}:/etc/certs:ro
       - ${NGINX_LOGS}:/var/log/nginx
     depends_on:
       - web
@@ -83,7 +90,7 @@ services:
     container_name: devaider
     build: ../backend
     ports:
-      - "9090:8080"
+      - "${WEB_PORT}:8080"
     environment:
       - TZ=Asia/Shanghai
     volumes:
