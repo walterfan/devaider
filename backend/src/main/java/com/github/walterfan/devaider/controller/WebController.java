@@ -16,6 +16,7 @@ public class WebController {
 
     @RequestMapping(value = "/")
     public String index() {
-        return "index";
+        return "home";
     }
+
 }

@@ -1,0 +1,56 @@
+version: "3"
+
+services:
+  db:
+    container_name: devaider_mariadb
+    image: mariadb:latest
+    command: '--default-authentication-plugin=mysql_native_password'
+    restart: always
+
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PWD}
+    expose:
+      - 3306
+      - 33060
+    ports:
+      - "${DB_PORT}:3306"
+      - "33060:33060"
+
+  # adminer - bring up only as needed - bypasses nginx
+  adminer:
+    # default port 8080
+    image: adminer:4
+    container_name: devaider_adminer
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "${ADMINER_PORT}:8080"
+
+  redis:
+    container_name: devaider_redis
+    image: redis:7.2.5-alpine
+    command:
+      - redis-server
+      - --requirepass ${REDIS_PWD} # 设置密码
+      - --save 900 1               # 每 15 分钟保存一次快照
+      - --save 300 10              # 每 5 分钟至少有 10 次更改时保存快照
+      - --save 60 10000            # 每 1 分钟至少有 10000 次更改时保存快照
+      - --appendonly yes           # 启用 AOF（追加日志）
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data           # 挂载持久化数据目录
+    restart: unless-stopped
+
+
+volumes:
+  db_data:
+      driver: local
+
+  redis_data:
+      driver: local
